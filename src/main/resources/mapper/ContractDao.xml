@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ContractDao">
+    <select id="selectList" resultType="com.pojo.Contract" parameterType="com.pojo.Contract">
+        select
+            c.id,
+            c.employee_id,
+            c.type,
+            DATE_FORMAT(c.add_time,'%Y-%m-%d %H:%i:%s') as add_time,
+            c.dete_line,
+            c.status,
+            c.effective_date,
+            c.deleted,
+            c.filepath,
+            e.name
+        from
+            contract c
+        left join employee e on e.id = c.employee_id
+        where c.deleted != 1
+        <if test="name !=null and name !=''">
+            and e.name like concat('%',#{name},'%')
+        </if>
+        <if test="status !=null and status !=''">
+            and c.status = #{status}
+        </if>
+        <if test="type !=null and type !=''">
+            and c.type = #{type}
+        </if>
+        <if test="employeeId !=null and employeeId !=''">
+            and c.employee_id = #{employeeId}
+        </if>
+        order by c.add_time desc
+    </select>
+    <insert id="addCont" parameterType="com.pojo.Contract" useGeneratedKeys="true" keyProperty="id">
+        insert into contract(
+            employee_id,
+            type,
+            add_time,
+            dete_line,
+            status,
+            effective_date
+         )values (
+            #{employeeId},
+            #{type},
+            sysdate(),
+            #{deteLine},
+            #{status},
+            #{effectiveDate}
+         )
+    </insert>
+    <update id="updateFilepath" parameterType="com.pojo.Contract">
+        update
+            contract
+        set
+            filepath = #{filepath}
+        where id=#{id}
+    </update>
+    <update id="updateStatus" >
+        update
+            contract
+        set
+            status = '2'
+        where id=#{id}
+    </update>
+    <update id="deleteById" >
+        update
+            contract
+        set
+            deleted = '1'
+        where id=#{id}
+    </update>
+    <select id="selectCount" resultType="com.pojo.ContractCount">
+        SELECT
+            count(*) as count,
+            IFNULL(sum(CASE WHEN  type = '1' THEN 1 ELSE 0 END),0) as rzCount,
+            IFNULL(sum(CASE WHEN  type = '2' THEN 1 ELSE 0 END),0) as lzCount
+        FROM
+            contract
+        where 1=1
+        <if test="time != null and time != ''">
+            and SUBSTR(add_time,1,7) = #{time}
+        </if>
+    </select>
+    <select id="selectMonth" resultType="java.lang.String">
+        select
+            SUBSTR(adddate(DATE_SUB(CURDATE(),INTERVAL dayofyear(now())-1 DAY), INTERVAL numlist.id-1 month),1,7) as 'date'
+        from (SELECT @xi:=@xi+1 as id from
+			(SELECT 1 UNION SELECT 2 UNION SELECT 3) xc1,
+			(SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4) xc2,
+			(SELECT @xi:=0) xc0  ) as numlist
+    </select>
+</mapper>

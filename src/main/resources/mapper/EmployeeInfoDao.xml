@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.EmployeeInfoDao">
+    <insert id="addInfo" parameterType="com.pojo.EmployeeInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into employee_info(
+            name,
+            employee_id,
+            age,
+            education,
+            major,
+            sex,
+            card_id,
+            nativee,
+            address,
+            mobile,
+            healthy,
+            politics,
+            marry,
+            sosname,
+            sosmobile,
+            edu_history_one,
+            edu_history_two,
+            edu_history_three,
+            add_time
+        )values(
+            #{name},
+            #{employeeId},
+            #{age},
+            #{education},
+            #{major},
+            #{sex},
+            #{cardId},
+            #{nativee},
+            #{address},
+            #{mobile},
+            #{healthy},
+            #{politics},
+            #{marry},
+            #{sosname},
+            #{sosmobile},
+            #{eduHistoryOne},
+            #{eduHistoryTwo},
+            #{eduHistoryThree},
+            sysdate()
+        )
+    </insert>
+    <select id="selectList" parameterType="com.pojo.EmployeeInfo" resultType="com.pojo.EmployeeInfo">
+        select
+        *
+        from
+        employee_info
+        where deleted != 1
+        <if test="id!=null and id!=''">
+            and id = #{id}
+        </if>
+    </select>
+    <select id="selectById" resultType="com.pojo.EmployeeInfo">
+        select
+        *
+        from
+        employee_info
+        where deleted != 1
+        <if test="id!=null and id!=''">
+            and id = #{id}
+        </if>
+        <if test="emplId!=null and emplId!=''">
+            and employee_id = #{emplId}
+        </if>
+    </select>
+    <update id="updateEid">
+        update
+        employee_info
+        set
+        employee_id = #{emplId}
+        where
+        id=#{infoId}
+    </update>
+</mapper>

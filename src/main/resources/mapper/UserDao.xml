@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.UserDao">
+    <resultMap id="userMap" type="com.pojo.User">
+        <id property="id" column="id"></id>
+        <result property="userName" column="username"></result>
+        <result property="password" column="password"></result>
+        <result property="sex" column="sex"></result>
+        <result property="mobile" column="mobile"></result>
+        <result property="isDelete" column="is_delete"></result>
+        <result property="createTime" column="create_time"></result>
+    </resultMap>
+    <!--  查询  -->
+    <select id="query" resultMap="userMap" parameterType="com.pojo.User">
+        select
+            id ,
+            username,
+            password,
+            sex,
+            mobile,
+            is_delete,
+            create_time
+        from
+            t_user
+        where 1=1
+        <if test="id != null and id != '' ">
+            and id = #{id}
+        </if>
+        <if test="userName != null and userName != '' ">
+            and username like concat('%',#{userName},'%')
+        </if>
+        <if test="mobile != null and mobile !=''">
+            and mobile =#{mobile}
+        </if>
+        and is_delete <![CDATA[<>]]>1
+    </select>
+    <!--  删除方法  -->
+    <update id="deleteUser" parameterType="java.lang.String">
+       update  t_user set is_delete='1' where id =#{id};
+    </update>
+    <!--  新增用户  -->
+    <insert id="addUser" parameterType="com.pojo.User">
+           replace into t_user(
+            id,
+            username,
+            password,
+            sex,
+            mobile,
+            is_delete,
+            create_time
+        )values(
+            #{id},
+            #{userName},
+            #{password},
+            #{sex},
+            #{mobile},
+            #{isDelete},
+            sysdate()
+        )
+    </insert>
+<!--   修改 -->
+    <update id="updateUser" parameterType="com.pojo.User">
+        update t_user set
+            username = #{userName},
+            password= #{password},
+            sex= #{sex},
+            mobile= #{mobile},
+            is_delete= #{isDelete}
+        where id = #{userId}
+    </update>
+    <update id="deleteUserPl">
+    update t_user set is_delete = '1' where id in
+    <foreach item="id" separator="," close=")" open="(" collection="ids">
+       #{id}
+    </foreach>
+
+</update>
+    <select id="selectList" resultType="com.pojo.User" parameterType="com.pojo.User">
+    select
+    id,
+    username as userName,
+    password,
+    sex,
+    mobile,
+    is_delete,
+    create_time
+    from
+    t_user
+    where 1=1
+    <if test="userName != null and userName != ''">
+        and username = #{userName}
+    </if>
+    <if test="mobile != null and mobile != ''">
+        and mobile = #{mobile}
+    </if>
+    <!--        <![CDATA[<>]]>-转义符,把等于1的排除掉-->
+    and is_delete <![CDATA[<>]]> 1
+    </select>
+</mapper>

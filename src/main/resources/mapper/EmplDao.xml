@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.EmplDao">
+    <select id="query" resultType="com.pojo.Employee" parameterType="com.pojo.Employee">
+        select
+            e.id as emplId,
+            e.name as emplName,
+            e.sex,
+            e.content,
+            e.department,
+            date_format(e.product_date,'%Y-%m-%d') as productDate,
+            date_format(e.birthday,'%Y-%m-%d') as birthday,
+            e.is_delete,
+            i.card_id
+        from
+        employee e
+        left join employee_info i on i.employee_id = e.id
+        where 1=1
+        <if test="emplId != null and emplId != ''">
+            and e.id = #{emplId}
+        </if>
+        <if test="department != null and department != ''">
+            and e.department = #{department}
+        </if>
+        <if test="emplName != null and emplName != ''">
+            and e.name like concat ('%',#{emplName},'%')
+        </if>
+        and e.is_delete <![CDATA[<>]]> 1
+    </select>
+    <insert id="addEmpl" parameterType="com.pojo.Employee" useGeneratedKeys="true" keyProperty="emplId">
+        replace into employee(
+            id,
+            name,
+            sex,
+            content,
+            department,
+            product_date,
+            birthday,
+            is_delete
+        )values (
+            #{emplId},
+            #{emplName},
+            #{sex},
+            #{content},
+            #{department},
+            #{productDate},
+            #{birthday},
+            #{isDelete}
+        )
+    </insert>
+    <delete id="deleteEmpl" parameterType="java.lang.String">
+        update employee set is_delete = '1' where id = #{emplId}
+    </delete>
+    <delete id="deleteEmplPl">
+        update employee set is_delete = '1' where id in
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

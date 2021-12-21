@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.AcceptDao">
+    <insert id="insertAcceptor" parameterType="com.pojo.Accept" useGeneratedKeys="true" keyProperty="id ">
+        insert into accept(
+            info_id,
+            status,
+            content,
+            user_id,
+            add_time
+        )values(
+             #{infoId},
+             #{status},
+             #{content},
+             #{userId},
+             sysdate()
+        )
+    </insert>
+    <select id="query" parameterType="com.pojo.Accept" resultType="com.pojo.Accept">
+        select
+            a.id,
+            a.info_id,
+            a.status,
+            a.content,
+            a.user_id,
+            DATE_FORMAT(a.accept_time,'%Y-%m-%d %H:%i:%s') as accept_time,
+            DATE_FORMAT(a.add_time,'%Y-%m-%d %H:%i:%s') as add_time,
+            i.name
+        from
+            accept a
+        left join employee_info i on i.id = a.info_id
+        where 1=1
+        <if test="id !=null and id!=''">
+            and a.id = #{id}
+        </if>
+        <if test="status !=null and status!=''">
+            and a.status = #{status}
+        </if>
+        <if test="name !=null and name!=''">
+            and i.name like concat('%',#{name},'%')
+        </if>
+        order by a.add_time desc
+    </select>
+    <update id="updatePass" parameterType="com.pojo.Accept">
+        update accept
+        set
+        status = #{status},
+        content = #{content},
+        user_id = #{userId},
+        accept_time = sysdate()
+        where id = #{id}
+    </update>
+    <select id="selectById" resultType="com.pojo.Accept">
+        select
+        *
+        from
+        accept
+        where
+        id = #{id}
+    </select>
+</mapper>
